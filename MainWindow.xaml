@@ -1,0 +1,793 @@
+﻿<Window x:Class="HashLyte.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:models="clr-namespace:HashLyte.Models"
+        mc:Ignorable="d"
+        Title="HashLyte"
+        Height="900"
+        Width="1500"
+        MinHeight="720"
+        MinWidth="1100"
+        Background="{StaticResource WindowBackgroundBrush}"
+        Foreground="{StaticResource PrimaryTextBrush}">
+
+    <Grid Margin="12">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ========================================================= -->
+        <!-- HEADER -->
+        <!-- ========================================================= -->
+
+        <StackPanel
+            Grid.Row="0"
+            Orientation="Horizontal"
+            Margin="0,0,0,12">
+
+            <TextBlock
+                Text="Hash"
+                FontSize="27"
+                FontWeight="SemiBold"
+                VerticalAlignment="Center"/>
+
+            <TextBlock
+                Text="Lyte"
+                FontSize="27"
+                FontWeight="SemiBold"
+                Foreground="{StaticResource AccentBrush}"
+                VerticalAlignment="Center"/>
+
+            <TextBlock
+                Text="   Windows Investigation Console"
+                FontSize="13"
+                Foreground="{StaticResource SecondaryTextBrush}"
+                VerticalAlignment="Center"/>
+
+        </StackPanel>
+
+        <!-- ========================================================= -->
+        <!-- CONNECTION BAR -->
+        <!-- ========================================================= -->
+
+        <Border
+            Grid.Row="1"
+            Background="{StaticResource PanelBackgroundBrush}"
+            BorderBrush="{StaticResource BorderBrush}"
+            BorderThickness="1"
+            CornerRadius="5"
+            Padding="10"
+            Margin="0,0,0,12">
+
+            <Grid>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="260"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock
+                    Grid.Column="0"
+                    Text="Target Computer:"
+                    VerticalAlignment="Center"
+                    Margin="0,0,8,0"/>
+
+                <TextBox
+                    Grid.Column="1"
+                    x:Name="TargetComputerTextBox"
+                    Height="30"
+                    VerticalContentAlignment="Center"/>
+
+                <Button
+                    Grid.Column="2"
+                    x:Name="ConnectButton"
+                    Content="Connect"
+                    Width="90"
+                    Height="30"
+                    Margin="8,0,0,0"
+                    Click="ConnectButton_Click"/>
+
+                <Button
+                    Grid.Column="3"
+                    x:Name="DisconnectButton"
+                    Content="Disconnect"
+                    Width="90"
+                    Height="30"
+                    Margin="8,0,0,0"
+                    IsEnabled="False"
+                    Click="DisconnectButton_Click"/>
+
+                <StackPanel
+                    Grid.Column="4"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center">
+
+                    <TextBlock
+                        x:Name="RunningIdentityText"
+                        Foreground="{StaticResource SecondaryTextBrush}"
+                        VerticalAlignment="Center"
+                        Margin="0,0,12,0"/>
+
+                    <Button
+                        x:Name="RestartAsAdminButton"
+                        Content="Restart as Administrator"
+                        Width="170"
+                        Height="30"
+                        Click="RestartAsAdminButton_Click"/>
+
+                </StackPanel>
+
+            </Grid>
+
+        </Border>
+
+        <!-- ========================================================= -->
+        <!-- MAIN TABS -->
+        <!-- ========================================================= -->
+
+        <TabControl
+            Grid.Row="2"
+            Background="{StaticResource PanelBackgroundBrush}"
+            BorderBrush="{StaticResource BorderBrush}">
+
+            <!-- ===================================================== -->
+            <!-- FILES -->
+            <!-- ===================================================== -->
+
+            <TabItem Header="Files">
+
+                <Grid
+                    Margin="8"
+                    Background="{StaticResource PanelBackgroundBrush}">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- File Browser -->
+                    <Grid Grid.Column="0">
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <DockPanel
+                            Grid.Row="0"
+                            Margin="0,0,0,8">
+
+                            <Button
+                                x:Name="UpButton"
+                                Content="↑ Up"
+                                Width="70"
+                                Height="30"
+                                Margin="0,0,8,0"
+                                IsEnabled="False"
+                                Click="UpButton_Click"/>
+
+                            <TextBox
+                                x:Name="CurrentPathTextBox"
+                                Height="30"
+                                IsReadOnly="True"
+                                VerticalContentAlignment="Center"/>
+
+                        </DockPanel>
+
+                        <DockPanel
+                            Grid.Row="1"
+                            Margin="0,0,0,8">
+
+                            <TextBlock
+                                Text="Search:"
+                                VerticalAlignment="Center"
+                                Margin="0,0,8,0"/>
+
+                            <TextBox
+                                x:Name="FileSearchTextBox"
+                                Height="30"
+                                VerticalContentAlignment="Center"
+                                TextChanged="FileSearchTextBox_TextChanged"/>
+
+                        </DockPanel>
+
+                        <DataGrid
+                            Grid.Row="2"
+                            x:Name="RemoteFilesGrid"
+                            AutoGenerateColumns="False"
+                            IsReadOnly="True"
+                            SelectionMode="Single"
+                            MouseDoubleClick="RemoteFilesGrid_MouseDoubleClick"
+                            SelectionChanged="RemoteFilesGrid_SelectionChanged">
+
+                            <DataGrid.Columns>
+
+                                <DataGridTextColumn
+                                    Header="Name"
+                                    Binding="{Binding Name}"
+                                    Width="*"/>
+
+                                <DataGridTextColumn
+                                    Header="Type"
+                                    Binding="{Binding Type}"
+                                    Width="90"/>
+
+                                <DataGridTextColumn
+                                    Header="Size"
+                                    Binding="{Binding SizeDisplay}"
+                                    Width="100"/>
+
+                                <DataGridTextColumn
+                                    Header="Modified"
+                                    Binding="{Binding Modified}"
+                                    Width="170"/>
+
+                            </DataGrid.Columns>
+
+                        </DataGrid>
+
+                    </Grid>
+
+                    <GridSplitter
+                        Grid.Column="1"
+                        HorizontalAlignment="Stretch"/>
+
+                    <!-- File Investigation Panel -->
+                    <Border
+                        Grid.Column="2"
+                        Background="{StaticResource PanelBackgroundAltBrush}"
+                        BorderBrush="{StaticResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="5"
+                        Padding="12"
+                        Margin="8,0,0,0">
+
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+                            <StackPanel>
+
+                                <TextBlock
+                                    Text="Selected Item"
+                                    FontSize="18"
+                                    FontWeight="SemiBold"
+                                    Margin="0,0,0,12"/>
+
+                                <TextBlock
+                                    Text="Name"
+                                    FontWeight="SemiBold"
+                                    Foreground="{StaticResource SecondaryTextBrush}"/>
+
+                                <TextBlock
+                                    x:Name="SelectedFileNameText"
+                                    Text="None selected"
+                                    Margin="0,2,0,12"
+                                    TextWrapping="Wrap"/>
+
+                                <TextBlock
+                                    Text="Remote Path"
+                                    FontWeight="SemiBold"
+                                    Foreground="{StaticResource SecondaryTextBrush}"/>
+
+                                <TextBlock
+                                    x:Name="SelectedRemotePathText"
+                                    Margin="0,2,0,12"
+                                    TextWrapping="Wrap"/>
+
+                                <TextBlock
+                                    Text="Target Path"
+                                    FontWeight="SemiBold"
+                                    Foreground="{StaticResource SecondaryTextBrush}"/>
+
+                                <TextBlock
+                                    x:Name="SelectedLocalPathText"
+                                    Margin="0,2,0,12"
+                                    TextWrapping="Wrap"/>
+
+                                <Button
+                                    x:Name="InvestigateFileButton"
+                                    Content="Investigate File"
+                                    Height="34"
+                                    Width="140"
+                                    HorizontalAlignment="Left"
+                                    IsEnabled="False"
+                                    Click="InvestigateFileButton_Click"/>
+
+                                <StackPanel
+                                    Orientation="Horizontal"
+                                    Margin="0,10,0,0">
+
+                                    <Button
+                                        x:Name="CopyHashButton"
+                                        Content="Copy SHA-256"
+                                        Width="120"
+                                        Height="30"
+                                        Margin="0,0,8,0"
+                                        IsEnabled="False"
+                                        Click="CopyHashButton_Click"/>
+
+                                    <Button
+                                        x:Name="VirusTotalButton"
+                                        Content="VirusTotal ↗"
+                                        Width="110"
+                                        Height="30"
+                                        IsEnabled="False"
+                                        Click="VirusTotalButton_Click"/>
+
+                                </StackPanel>
+
+                                <Separator Margin="0,16,0,16"/>
+
+                                <TextBlock
+                                    Text="Investigation"
+                                    FontSize="18"
+                                    FontWeight="SemiBold"
+                                    Margin="0,0,0,12"/>
+
+                                <TextBlock
+                                    x:Name="InvestigationResultsText"
+                                    Text="No file investigated."
+                                    FontFamily="Consolas"
+                                    TextWrapping="Wrap"/>
+
+                            </StackPanel>
+
+                        </ScrollViewer>
+
+                    </Border>
+
+                </Grid>
+
+            </TabItem>
+
+            <!-- ===================================================== -->
+            <!-- PROCESSES -->
+            <!-- ===================================================== -->
+
+            <TabItem Header="Processes">
+
+                <Grid
+                    Margin="8"
+                    Background="{StaticResource PanelBackgroundBrush}">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Column="0">
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <DockPanel
+                            Grid.Row="0"
+                            Margin="0,0,0,8">
+
+                            <CheckBox
+                                x:Name="SuspiciousOnlyCheckBox"
+                                Content="Show only interesting"
+                                Margin="0,0,18,0"
+                                VerticalAlignment="Center"
+                                Checked="SuspiciousOnlyCheckBox_Changed"
+                                Unchecked="SuspiciousOnlyCheckBox_Changed"/>
+
+                            <TextBlock
+                                Text="Search:"
+                                VerticalAlignment="Center"
+                                Margin="0,0,8,0"/>
+
+                            <TextBox
+                                x:Name="ProcessSearchTextBox"
+                                Height="30"
+                                VerticalContentAlignment="Center"
+                                TextChanged="ProcessSearchTextBox_TextChanged"/>
+
+                        </DockPanel>
+
+                        <DataGrid
+                            Grid.Row="1"
+                            x:Name="ProcessesGrid"
+                            AutoGenerateColumns="False"
+                            IsReadOnly="True"
+                            SelectionMode="Single"
+                            SelectionChanged="ProcessesGrid_SelectionChanged">
+
+                            <DataGrid.Columns>
+
+                                <DataGridTextColumn
+                                    Header="PID"
+                                    Binding="{Binding Pid}"
+                                    Width="80"/>
+
+                                <DataGridTextColumn
+                                    Header="Parent"
+                                    Binding="{Binding ParentPid}"
+                                    Width="80"/>
+
+                                <DataGridTextColumn
+                                    Header="Process"
+                                    Binding="{Binding Name}"
+                                    Width="180"/>
+
+                                <DataGridTextColumn
+                                    Header="User"
+                                    Binding="{Binding User}"
+                                    Width="200"/>
+
+                                <DataGridTextColumn
+                                    Header="Executable"
+                                    Binding="{Binding ExecutablePath}"
+                                    Width="*"/>
+
+                                <DataGridTextColumn
+                                    Header="Command Line"
+                                    Binding="{Binding CommandLine}"
+                                    Width="2*"/>
+
+                            </DataGrid.Columns>
+
+                        </DataGrid>
+
+                    </Grid>
+
+                    <GridSplitter
+                        Grid.Column="1"
+                        HorizontalAlignment="Stretch"/>
+
+                    <Border
+                        Grid.Column="2"
+                        Background="{StaticResource PanelBackgroundAltBrush}"
+                        BorderBrush="{StaticResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="5"
+                        Padding="12"
+                        Margin="8,0,0,0">
+
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+                            <StackPanel>
+
+                                <TextBlock
+                                    Text="Process Details"
+                                    FontSize="18"
+                                    FontWeight="SemiBold"
+                                    Margin="0,0,0,12"/>
+
+                                <TextBlock
+                                    x:Name="ProcessDetailsText"
+                                    Text="No process selected."
+                                    FontFamily="Consolas"
+                                    TextWrapping="Wrap"/>
+
+                                <Button
+                                    x:Name="InvestigateProcessExecutableButton"
+                                    Content="Investigate Executable"
+                                    Width="170"
+                                    Height="34"
+                                    Margin="0,14,0,0"
+                                    HorizontalAlignment="Left"
+                                    IsEnabled="False"
+                                    Click="InvestigateProcessExecutableButton_Click"/>
+
+                                <StackPanel
+                                    Orientation="Horizontal"
+                                    Margin="0,10,0,0">
+
+                                    <Button
+                                        x:Name="ProcessCopyHashButton"
+                                        Content="Copy SHA-256"
+                                        Width="120"
+                                        Height="30"
+                                        Margin="0,0,8,0"
+                                        IsEnabled="False"
+                                        Click="ProcessCopyHashButton_Click"/>
+
+                                    <Button
+                                        x:Name="ProcessVirusTotalButton"
+                                        Content="VirusTotal ↗"
+                                        Width="110"
+                                        Height="30"
+                                        IsEnabled="False"
+                                        Click="ProcessVirusTotalButton_Click"/>
+
+                                </StackPanel>
+
+                                <Separator Margin="0,16,0,16"/>
+
+                                <TextBlock
+                                    Text="Service Association"
+                                    FontSize="18"
+                                    FontWeight="SemiBold"
+                                    Margin="0,0,0,12"/>
+
+                                <TextBlock
+                                    x:Name="ProcessServiceText"
+                                    Text="No process selected."
+                                    FontFamily="Consolas"
+                                    TextWrapping="Wrap"/>
+
+                            </StackPanel>
+
+                        </ScrollViewer>
+
+                    </Border>
+
+                </Grid>
+
+            </TabItem>
+
+            <!-- ===================================================== -->
+            <!-- PROCESS TREE -->
+            <!-- ===================================================== -->
+
+            <TabItem Header="Process Tree">
+
+                <Grid
+                    Margin="8"
+                    Background="{StaticResource PanelBackgroundBrush}">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Column="0">
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <DockPanel
+                            Grid.Row="0"
+                            Margin="0,0,0,8">
+
+                            <Button
+                                x:Name="RefreshProcessTreeButton"
+                                Content="Refresh Tree"
+                                Width="100"
+                                Height="30"
+                                Margin="0,0,8,0"
+                                Click="RefreshProcessTreeButton_Click"/>
+
+                            <TextBlock
+                                Text="Parent → child process relationships"
+                                Foreground="{StaticResource SecondaryTextBrush}"
+                                VerticalAlignment="Center"/>
+
+                        </DockPanel>
+
+                        <TreeView
+                            Grid.Row="1"
+                            x:Name="ProcessTreeView"
+                            SelectedItemChanged="ProcessTreeView_SelectedItemChanged">
+
+                            <TreeView.Resources>
+
+                                <HierarchicalDataTemplate
+                                    DataType="{x:Type models:ProcessTreeNode}"
+                                    ItemsSource="{Binding Children}">
+
+                                    <TextBlock
+                                        Text="{Binding DisplayName}"/>
+
+                                </HierarchicalDataTemplate>
+
+                            </TreeView.Resources>
+
+                        </TreeView>
+
+                    </Grid>
+
+                    <GridSplitter
+                        Grid.Column="1"
+                        HorizontalAlignment="Stretch"/>
+
+                    <Border
+                        Grid.Column="2"
+                        Background="{StaticResource PanelBackgroundAltBrush}"
+                        BorderBrush="{StaticResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="5"
+                        Padding="12"
+                        Margin="8,0,0,0">
+
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+                            <StackPanel>
+
+                                <TextBlock
+                                    Text="Process Details"
+                                    FontSize="18"
+                                    FontWeight="SemiBold"
+                                    Margin="0,0,0,12"/>
+
+                                <TextBlock
+                                    x:Name="TreeProcessDetailsText"
+                                    Text="No process selected."
+                                    FontFamily="Consolas"
+                                    TextWrapping="Wrap"/>
+
+                                <Button
+                                    x:Name="TreeInvestigateExecutableButton"
+                                    Content="Investigate Executable"
+                                    Width="170"
+                                    Height="34"
+                                    Margin="0,14,0,0"
+                                    HorizontalAlignment="Left"
+                                    IsEnabled="False"
+                                    Click="TreeInvestigateExecutableButton_Click"/>
+
+                                <StackPanel
+                                    Orientation="Horizontal"
+                                    Margin="0,10,0,0">
+
+                                    <Button
+                                        x:Name="TreeCopyHashButton"
+                                        Content="Copy SHA-256"
+                                        Width="120"
+                                        Height="30"
+                                        Margin="0,0,8,0"
+                                        IsEnabled="False"
+                                        Click="TreeCopyHashButton_Click"/>
+
+                                    <Button
+                                        x:Name="TreeVirusTotalButton"
+                                        Content="VirusTotal ↗"
+                                        Width="110"
+                                        Height="30"
+                                        IsEnabled="False"
+                                        Click="TreeVirusTotalButton_Click"/>
+
+                                </StackPanel>
+
+                                <Separator Margin="0,16,0,16"/>
+
+                                <TextBlock
+                                    Text="Service Association"
+                                    FontSize="18"
+                                    FontWeight="SemiBold"
+                                    Margin="0,0,0,12"/>
+
+                                <TextBlock
+                                    x:Name="TreeServiceText"
+                                    Text="No process selected."
+                                    FontFamily="Consolas"
+                                    TextWrapping="Wrap"/>
+
+                            </StackPanel>
+
+                        </ScrollViewer>
+
+                    </Border>
+
+                </Grid>
+
+            </TabItem>
+
+            <!-- ===================================================== -->
+            <!-- SERVICES -->
+            <!-- ===================================================== -->
+
+            <TabItem Header="Services">
+
+                <Grid
+                    Margin="8"
+                    Background="{StaticResource PanelBackgroundBrush}">
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <DockPanel
+                        Grid.Row="0"
+                        Margin="0,0,0,8">
+
+                        <TextBlock
+                            Text="Search:"
+                            VerticalAlignment="Center"
+                            Margin="0,0,8,0"/>
+
+                        <TextBox
+                            x:Name="ServiceSearchTextBox"
+                            Height="30"
+                            VerticalContentAlignment="Center"
+                            TextChanged="ServiceSearchTextBox_TextChanged"/>
+
+                    </DockPanel>
+
+                    <DataGrid
+                        Grid.Row="1"
+                        x:Name="ServicesGrid"
+                        AutoGenerateColumns="False"
+                        IsReadOnly="True"
+                        SelectionMode="Single">
+
+                        <DataGrid.Columns>
+
+                            <DataGridTextColumn
+                                Header="Service"
+                                Binding="{Binding Name}"
+                                Width="180"/>
+
+                            <DataGridTextColumn
+                                Header="Display Name"
+                                Binding="{Binding DisplayName}"
+                                Width="220"/>
+
+                            <DataGridTextColumn
+                                Header="State"
+                                Binding="{Binding State}"
+                                Width="100"/>
+
+                            <DataGridTextColumn
+                                Header="Startup"
+                                Binding="{Binding StartMode}"
+                                Width="100"/>
+
+                            <DataGridTextColumn
+                                Header="Account"
+                                Binding="{Binding StartAccount}"
+                                Width="180"/>
+
+                            <DataGridTextColumn
+                                Header="PID"
+                                Binding="{Binding ProcessId}"
+                                Width="80"/>
+
+                            <DataGridTextColumn
+                                Header="Path"
+                                Binding="{Binding PathName}"
+                                Width="*"/>
+
+                        </DataGrid.Columns>
+
+                    </DataGrid>
+
+                </Grid>
+
+            </TabItem>
+
+        </TabControl>
+
+        <!-- ========================================================= -->
+        <!-- STATUS BAR -->
+        <!-- ========================================================= -->
+
+        <Border
+            Grid.Row="3"
+            Background="{StaticResource PanelBackgroundBrush}"
+            BorderBrush="{StaticResource BorderBrush}"
+            BorderThickness="1"
+            CornerRadius="4"
+            Margin="0,10,0,0"
+            Padding="8">
+
+            <TextBlock
+                x:Name="ConnectionStatusText"
+                Text="Not connected"
+                Foreground="{StaticResource SecondaryTextBrush}"
+                TextWrapping="Wrap"/>
+
+        </Border>
+
+    </Grid>
+
+</Window>
